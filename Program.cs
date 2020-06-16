@@ -3,6 +3,8 @@ using System;
 using System.IO;
 using System.Linq;
 
+using YamlDotNet.RepresentationModel;
+
 namespace Umber
 {
     public class Program
@@ -18,27 +20,36 @@ namespace Umber
 
         private void OnExecute()
         {
-
-            var file = File.OpenText(FileRef);
-
-
-
             var args = ChartVersion.Split(',', StringSplitOptions.RemoveEmptyEntries);
             var charts = args.Where(a => a.Contains('=', StringComparison.OrdinalIgnoreCase)).Select(c =>
             {
                 var s = c.Split('=', StringSplitOptions.RemoveEmptyEntries);
-                return (Chart: s[0], Version: s[1]);
+                return (Name: s[0], Version: s[1]);
             });
 
-            foreach (var definition in charts)
+            var yaml = new YamlStream();
+            using (var file = File.OpenText(FileRef))
             {
-                Console.WriteLine($"{definition.Chart} : {definition.Version}");
+                yaml.Load(file);
             }
 
+            var mapping = (YamlMappingNode)yaml.Documents[0].RootNode;
+            var dependencies = (YamlSequenceNode)mapping.Children[new YamlScalarNode("dependencies")];
 
-            //var subject = Subject ?? "world";
-            Console.WriteLine($"Hello!");
+            foreach (var dependency in dependencies)
+            {
+                var name = dependency["name"].ToString();
+                var chart = charts.FirstOrDefault(c => c.Name == name);
+                
+                if(chart != default)
+                {
+                    ((YamlScalarNode)dependency["version"]).Value = chart.Version;
+                }
+            }
 
+            using var output = File.OpenWrite(FileRef);
+            using var text = new StreamWriter(output);
+            yaml.Save(text);
         }
     }
 }

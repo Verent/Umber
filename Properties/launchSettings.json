@@ -2,7 +2,7 @@
   "profiles": {
     "Umber": {
       "commandName": "Project",
-      "commandLineArgs": "-f Chart.yaml -c a=1.0.0,app=1.1.9"
+      "commandLineArgs": "-f Chart.yaml -c service1=0.0.1,service2=1.2.9"
     }
   }
 }
