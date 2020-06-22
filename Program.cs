@@ -20,6 +20,13 @@ namespace Umber
 
         private void OnExecute()
         {
+            if(string.IsNullOrWhiteSpace(FileRef) || File.Exists(FileRef) == false)
+            {
+                Console.WriteLine("Template file not found.");
+                return;
+            }
+
+
             var args = ChartVersion.Split(',', StringSplitOptions.RemoveEmptyEntries);
             var charts = args.Where(a => a.Contains('=', StringComparison.OrdinalIgnoreCase)).Select(c =>
             {
