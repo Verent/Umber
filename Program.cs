@@ -20,7 +20,7 @@ namespace Umber
 
         private void OnExecute()
         {
-            if(string.IsNullOrWhiteSpace(FileRef) || File.Exists(FileRef) == false)
+            if (string.IsNullOrWhiteSpace(FileRef) || File.Exists(FileRef) == false)
             {
                 Console.WriteLine("Template file not found.");
                 return;
@@ -47,16 +47,17 @@ namespace Umber
             {
                 var name = dependency["name"].ToString();
                 var chart = charts.FirstOrDefault(c => c.Name == name);
-                
-                if(chart != default)
+
+                if (chart != default)
                 {
                     ((YamlScalarNode)dependency["version"]).Value = chart.Version;
                 }
             }
 
             using var output = File.OpenWrite(FileRef);
-            using var text = new StreamWriter(output);
-            yaml.Save(text);
+            output.SetLength(0);
+            using var sw = new StreamWriter(output);
+            yaml.Save(sw, false);
         }
     }
 }
